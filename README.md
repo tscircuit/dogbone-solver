@@ -52,3 +52,15 @@ with the official plop templates. Source-only TypeScript package (`lib/index.ts`
 no checked-in lockfile or build artifact. CI validates tests, types and formatting.
 The release workflow publishes versioned GitHub Packages, served by jscdn:
 `https://jscdn.tscircuit.com/@tscircuit/dogbone-solver/<version>`.
+
+## Visual regression gallery
+
+![AM3352: all 324 local escapes](tests/__snapshots__/am3352.snap.svg)
+
+![Bottom-side pads to inner2](tests/__snapshots__/bottom-layer.snap.svg)
+
+![Infeasible oversized via sites](tests/__snapshots__/blocked-sites.snap.svg)
+
+To inspect the debugger locally, open the `am3352` or `small-grid` page in the
+Cosmos sidebar. On hosts with exhausted filesystem watchers, start with
+`CHOKIDAR_USEPOLLING=true bun run start`.
