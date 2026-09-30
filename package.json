@@ -1,0 +1,51 @@
+{
+  "name": "@tscircuit/dogbone-solver",
+  "version": "0.0.0",
+  "type": "module",
+  "module": "lib/index.ts",
+  "types": "lib/index.ts",
+  "files": [
+    "lib"
+  ],
+  "license": "MIT",
+  "description": "Local BGA dogbone fanout solver with replayable steps and visual debugging",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tscircuit/dogbone-solver"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  },
+  "exports": {
+    ".": "./lib/index.ts"
+  },
+  "scripts": {
+    "test": "bun test",
+    "typecheck": "tsc --noEmit",
+    "build": "tsc --noEmit",
+    "format": "biome format --write .",
+    "format:check": "biome format .",
+    "start": "cosmos",
+    "build:site": "cosmos-export"
+  },
+  "dependencies": {
+    "@tscircuit/fanout-solver": "0.0.79",
+    "@tscircuit/solver-utils": "0.0.16",
+    "@tscircuit/capacity-autorouter": "0.0.941",
+    "circuit-json": "0.0.507",
+    "graphics-debug": "0.0.95"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.5.5",
+    "@types/bun": "^1.3.14",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "bun-match-svg": "^0.0.16",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "react-cosmos": "^7.3.0",
+    "react-cosmos-plugin-vite": "^7.3.0",
+    "vite": "^8.1.5",
+    "typescript": "^5.9.3"
+  }
+}
