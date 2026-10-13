@@ -1,0 +1,20 @@
+[
+  {
+    "name": "no_plane",
+    "solved": true,
+    "error": null,
+    "iterations": 3
+  },
+  {
+    "name": "intermediate_ground_plane",
+    "solved": false,
+    "error": "No complete local dogbone assignment within clearance/search limits",
+    "iterations": 2
+  },
+  {
+    "name": "physical_obstacle_on_intermediate_layer",
+    "solved": false,
+    "error": "No complete local dogbone assignment within clearance/search limits",
+    "iterations": 2
+  }
+]

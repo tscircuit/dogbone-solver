@@ -1,0 +1,62 @@
+PR proposal 1: Allow BGA escape vias through repourable intermediate planes
+Targets: tscircuit/dogbone-solver and tscircuit/fanout-solver; integration coverage in tscircuit/core
+Status: DESIGN PROPOSAL + MINIMAL REPRODUCER. No production plane-routing patch yet.
+Priority: first routing fix; independently reviewable from API changes.
+
+Problem / resulting behavior
+A 3 x 3 BGA can escape its center pad to inner2 until an inner1 ground pour is
+added. The same geometry then fails with "No complete local dogbone assignment
+within clearance/search limits". A legal through via should cross that foreign
+plane using an antipad; it must not electrically attach to the plane.
+
+Evidence
+reproduce-plane-escape.mjs and minimal-plane-escape.srj.json are newly authored,
+small inputs independent of existing TSX references. Against the bundled solver:
+- No plane: solved, 3 iterations.
+- Intermediate GND plane: failed, 2 iterations.
+- Physical obstacle covering the same area: failed, 2 iterations (correct).
+The original AM3352 input also escaped after copper-pour obstacles were excluded
+from via-placement input; that exclusion is a diagnostic, not the proposed fix.
+
+Root-cause locations
+@tscircuit/dogbone-solver/lib/dogbone-fanout-solver.ts, solveSteps(): passes every
+input obstacle to matchComponentDogboneViaSites as additionalObstacles.
+@tscircuit/fanout-solver/lib/match-component-dogbone-via-sites.ts:
+viaSiteClearsObstacles() performs planar distance tests against all obstacles.
+sourceSegmentClearsOtherObstacles() also tests obstacle geometry without a
+source-layer filter. These are different clearance questions and need separate
+semantics. A physical drill obstruction must remain different from pour copper.
+
+Proposed implementation
+1. Retain the original SRJ obstacles and net identities. Represent the source
+   surface segment, via's physical drilled span and destination copper layer
+   explicitly at candidate evaluation.
+2. Check the surface segment only against copper on its own layer, while
+   preserving keepouts/holes that actually affect that layer.
+3. Permit a foreign pour on an intermediate via layer only when the downstream
+   pour stage can generate an antipad. Carry the clearance requirement through
+   to that stage. Confirm the existing core repour contract before selecting
+   the internal representation; isCopperPour alone must not grant permission
+   to modify fixed copper. Unsupported fixed-plane crossings fail explicitly.
+4. Keep source/destination foreign copper collision checks. Same-net plane
+   attachment must use electrical connectivity, not merely spatial overlap.
+5. Check real drilled span for physical obstructions and existing vias, plus
+   hole-to-hole and board-edge rules. Never drop all isCopperPour obstacles as
+   a general shortcut, and never infer blind vias from a logical layer hop.
+
+Acceptance tests (one case per test file)
+- Fresh 3 x 3 input escapes through an intermediate repourable GND plane.
+- Emitted through via retains correct drill, pad diameter and all spanned layers.
+- Core integration emits an actual antipad and passes foreign-plane short checks.
+- Identical footprint with physical keepout / NPTH obstruction remains blocked.
+- Foreign copper on the source segment's layer still blocks the segment.
+- Unsupported fixed plane fails with a readable reason.
+- Same-net plane attachment connects; foreign-net crossing stays isolated.
+- Bottom-side pad, six-layer board, multiple GND planes and legal partial spans
+  are covered; invalid layer/span combinations fail.
+- AM3352 input is a larger integration regression after the small cases pass.
+
+Review boundary
+The measured reproduction establishes the obstacle-classification defect. It
+is not sufficient evidence that simply filtering pours is electrically safe.
+Do not call this PR ready to merge until final copper/antipad DRC is exercised.
