@@ -5,3 +5,6 @@ The no-plane control solves; the intermediate-pour and physical-obstacle cases
 fail. A production fix must keep the physical-obstacle case blocked and verify
 actual antipads in an integration test. Coordinates are board-world mm, +X right,
 +Y up, +Z above the board (right-handed); pad centers are points.
+
+The standalone JavaScript reproduction uses its own pinned dependency version;
+it does not typecheck against unrelated parent-workspace core declarations.

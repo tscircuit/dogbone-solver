@@ -10,7 +10,7 @@ within clearance/search limits". A legal through via should cross that foreign
 plane using an antipad; it must not electrically attach to the plane.
 
 Evidence
-reproduce-plane-escape.ts and minimal-plane-escape.srj.json are newly authored,
+reproduce-plane-escape.mjs and minimal-plane-escape.srj.json are newly authored,
 small inputs independent of existing TSX references. Against the bundled solver:
 - No plane: solved, 3 iterations.
 - Intermediate GND plane: failed, 2 iterations.

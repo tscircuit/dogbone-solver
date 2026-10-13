@@ -35,12 +35,8 @@
       },
       "width": 0.4,
       "height": 0.4,
-      "layers": [
-        "top"
-      ],
-      "connectedTo": [
-        "U1_0_0"
-      ],
+      "layers": ["top"],
+      "connectedTo": ["U1_0_0"],
       "circuitJsonMetadata": {
         "pcb_port_id": "U1_0_0"
       }
@@ -55,12 +51,8 @@
       },
       "width": 0.4,
       "height": 0.4,
-      "layers": [
-        "top"
-      ],
-      "connectedTo": [
-        "U1_0_1"
-      ],
+      "layers": ["top"],
+      "connectedTo": ["U1_0_1"],
       "circuitJsonMetadata": {
         "pcb_port_id": "U1_0_1"
       }
@@ -75,12 +67,8 @@
       },
       "width": 0.4,
       "height": 0.4,
-      "layers": [
-        "top"
-      ],
-      "connectedTo": [
-        "U1_0_2"
-      ],
+      "layers": ["top"],
+      "connectedTo": ["U1_0_2"],
       "circuitJsonMetadata": {
         "pcb_port_id": "U1_0_2"
       }
@@ -95,12 +83,8 @@
       },
       "width": 0.4,
       "height": 0.4,
-      "layers": [
-        "top"
-      ],
-      "connectedTo": [
-        "U1_1_0"
-      ],
+      "layers": ["top"],
+      "connectedTo": ["U1_1_0"],
       "circuitJsonMetadata": {
         "pcb_port_id": "U1_1_0"
       }
@@ -115,12 +99,8 @@
       },
       "width": 0.4,
       "height": 0.4,
-      "layers": [
-        "top"
-      ],
-      "connectedTo": [
-        "U1_1_1"
-      ],
+      "layers": ["top"],
+      "connectedTo": ["U1_1_1"],
       "circuitJsonMetadata": {
         "pcb_port_id": "U1_1_1"
       }
@@ -135,12 +115,8 @@
       },
       "width": 0.4,
       "height": 0.4,
-      "layers": [
-        "top"
-      ],
-      "connectedTo": [
-        "U1_1_2"
-      ],
+      "layers": ["top"],
+      "connectedTo": ["U1_1_2"],
       "circuitJsonMetadata": {
         "pcb_port_id": "U1_1_2"
       }
@@ -155,12 +131,8 @@
       },
       "width": 0.4,
       "height": 0.4,
-      "layers": [
-        "top"
-      ],
-      "connectedTo": [
-        "U1_2_0"
-      ],
+      "layers": ["top"],
+      "connectedTo": ["U1_2_0"],
       "circuitJsonMetadata": {
         "pcb_port_id": "U1_2_0"
       }
@@ -175,12 +147,8 @@
       },
       "width": 0.4,
       "height": 0.4,
-      "layers": [
-        "top"
-      ],
-      "connectedTo": [
-        "U1_2_1"
-      ],
+      "layers": ["top"],
+      "connectedTo": ["U1_2_1"],
       "circuitJsonMetadata": {
         "pcb_port_id": "U1_2_1"
       }
@@ -195,12 +163,8 @@
       },
       "width": 0.4,
       "height": 0.4,
-      "layers": [
-        "top"
-      ],
-      "connectedTo": [
-        "U1_2_2"
-      ],
+      "layers": ["top"],
+      "connectedTo": ["U1_2_2"],
       "circuitJsonMetadata": {
         "pcb_port_id": "U1_2_2"
       }
@@ -213,12 +177,8 @@
       },
       "width": 6,
       "height": 6,
-      "layers": [
-        "inner1"
-      ],
-      "connectedTo": [
-        "GND"
-      ],
+      "layers": ["inner1"],
+      "connectedTo": ["GND"],
       "isCopperPour": true
     }
   ]

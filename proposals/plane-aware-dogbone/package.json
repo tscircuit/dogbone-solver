@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "reproduce:plane": "bun reproduce-plane-escape.ts"
+    "reproduce:plane": "bun reproduce-plane-escape.mjs"
   },
   "dependencies": {
     "@tscircuit/core": "0.0.2138",
