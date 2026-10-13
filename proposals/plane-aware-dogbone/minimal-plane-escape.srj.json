@@ -1,0 +1,225 @@
+{
+  "bounds": {
+    "minX": -3,
+    "maxX": 3,
+    "minY": -3,
+    "maxY": 3
+  },
+  "layerCount": 6,
+  "minTraceWidth": 0.102,
+  "minViaPadDiameter": 0.457,
+  "minViaHoleDiameter": 0.254,
+  "minTraceToPadEdgeClearance": 0.102,
+  "connections": [
+    {
+      "name": "DDR_D0",
+      "source_trace_id": "DDR_D0",
+      "pointsToConnect": [
+        {
+          "x": 0,
+          "y": 0,
+          "layer": "top",
+          "pcb_port_id": "U1_1_1"
+        }
+      ]
+    }
+  ],
+  "obstacles": [
+    {
+      "type": "rect",
+      "shape": "circle",
+      "componentId": "U1",
+      "center": {
+        "x": -0.8,
+        "y": -0.8
+      },
+      "width": 0.4,
+      "height": 0.4,
+      "layers": [
+        "top"
+      ],
+      "connectedTo": [
+        "U1_0_0"
+      ],
+      "circuitJsonMetadata": {
+        "pcb_port_id": "U1_0_0"
+      }
+    },
+    {
+      "type": "rect",
+      "shape": "circle",
+      "componentId": "U1",
+      "center": {
+        "x": -0.8,
+        "y": 0
+      },
+      "width": 0.4,
+      "height": 0.4,
+      "layers": [
+        "top"
+      ],
+      "connectedTo": [
+        "U1_0_1"
+      ],
+      "circuitJsonMetadata": {
+        "pcb_port_id": "U1_0_1"
+      }
+    },
+    {
+      "type": "rect",
+      "shape": "circle",
+      "componentId": "U1",
+      "center": {
+        "x": -0.8,
+        "y": 0.8
+      },
+      "width": 0.4,
+      "height": 0.4,
+      "layers": [
+        "top"
+      ],
+      "connectedTo": [
+        "U1_0_2"
+      ],
+      "circuitJsonMetadata": {
+        "pcb_port_id": "U1_0_2"
+      }
+    },
+    {
+      "type": "rect",
+      "shape": "circle",
+      "componentId": "U1",
+      "center": {
+        "x": 0,
+        "y": -0.8
+      },
+      "width": 0.4,
+      "height": 0.4,
+      "layers": [
+        "top"
+      ],
+      "connectedTo": [
+        "U1_1_0"
+      ],
+      "circuitJsonMetadata": {
+        "pcb_port_id": "U1_1_0"
+      }
+    },
+    {
+      "type": "rect",
+      "shape": "circle",
+      "componentId": "U1",
+      "center": {
+        "x": 0,
+        "y": 0
+      },
+      "width": 0.4,
+      "height": 0.4,
+      "layers": [
+        "top"
+      ],
+      "connectedTo": [
+        "U1_1_1"
+      ],
+      "circuitJsonMetadata": {
+        "pcb_port_id": "U1_1_1"
+      }
+    },
+    {
+      "type": "rect",
+      "shape": "circle",
+      "componentId": "U1",
+      "center": {
+        "x": 0,
+        "y": 0.8
+      },
+      "width": 0.4,
+      "height": 0.4,
+      "layers": [
+        "top"
+      ],
+      "connectedTo": [
+        "U1_1_2"
+      ],
+      "circuitJsonMetadata": {
+        "pcb_port_id": "U1_1_2"
+      }
+    },
+    {
+      "type": "rect",
+      "shape": "circle",
+      "componentId": "U1",
+      "center": {
+        "x": 0.8,
+        "y": -0.8
+      },
+      "width": 0.4,
+      "height": 0.4,
+      "layers": [
+        "top"
+      ],
+      "connectedTo": [
+        "U1_2_0"
+      ],
+      "circuitJsonMetadata": {
+        "pcb_port_id": "U1_2_0"
+      }
+    },
+    {
+      "type": "rect",
+      "shape": "circle",
+      "componentId": "U1",
+      "center": {
+        "x": 0.8,
+        "y": 0
+      },
+      "width": 0.4,
+      "height": 0.4,
+      "layers": [
+        "top"
+      ],
+      "connectedTo": [
+        "U1_2_1"
+      ],
+      "circuitJsonMetadata": {
+        "pcb_port_id": "U1_2_1"
+      }
+    },
+    {
+      "type": "rect",
+      "shape": "circle",
+      "componentId": "U1",
+      "center": {
+        "x": 0.8,
+        "y": 0.8
+      },
+      "width": 0.4,
+      "height": 0.4,
+      "layers": [
+        "top"
+      ],
+      "connectedTo": [
+        "U1_2_2"
+      ],
+      "circuitJsonMetadata": {
+        "pcb_port_id": "U1_2_2"
+      }
+    },
+    {
+      "type": "rect",
+      "center": {
+        "x": 0,
+        "y": 0
+      },
+      "width": 6,
+      "height": 6,
+      "layers": [
+        "inner1"
+      ],
+      "connectedTo": [
+        "GND"
+      ],
+      "isCopperPour": true
+    }
+  ]
+}
