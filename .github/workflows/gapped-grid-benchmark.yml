@@ -34,7 +34,7 @@ jobs:
       - name: Benchmark pinned head
         env:
           BENCHMARK_SOURCE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
-          REQUIRE_ALL_GAPPED_CASES: "0"
+          REQUIRE_ALL_GAPPED_CASES: "1"
         run: bun head/scripts/benchmark-gapped-grid.ts head/lib/index.ts benchmark-results/head.json
       - name: Report effect
         run: |
