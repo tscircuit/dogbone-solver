@@ -22,6 +22,7 @@ export type SimplifiedPcbTrace = Omit<
   type: "pcb_trace"
   pcb_trace_id: string
   connection_name?: string
+  source_trace_id?: string
   connectsTo?: string[]
   route: Array<
     | {

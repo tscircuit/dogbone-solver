@@ -232,6 +232,75 @@ export class DogboneFanoutSolver extends BaseSolver {
     const blockingVias: NonNullable<
       DogboneViaSiteGeometryRules["blockingVias"]
     >[number][] = []
+    // Earlier phases own immutable copper. Share sites only with an explicitly
+    // matching net; unnamed traces must never accidentally become same-net.
+    for (const [traceIndex, trace] of (input.traces ?? []).entries()) {
+      const aliases = [trace.connection_name, trace.source_trace_id].filter(
+        Boolean,
+      )
+      const owner = input.connections.findIndex((connection) =>
+        [connection.name, connection.source_trace_id].some(
+          (id) => id && aliases.includes(id),
+        ),
+      )
+      const connectionIndex = owner >= 0 ? owner : -traceIndex - 1
+      for (const [index, point] of trace.route.entries()) {
+        const prior = trace.route[index - 1]
+        if (
+          point.route_type === "wire" &&
+          prior?.route_type === "wire" &&
+          point.layer === prior.layer
+        ) {
+          blockingSegments.push({
+            connectionIndex,
+            segment: {
+              start: prior,
+              end: point,
+              width: Math.max(prior.width, point.width),
+              layer: point.layer,
+            },
+          })
+        } else if (point.route_type === "via" && prior?.route_type === "wire") {
+          blockingSegments.push({
+            connectionIndex,
+            segment: {
+              start: prior,
+              end: point,
+              width: prior.width,
+              layer: prior.layer,
+            },
+          })
+        } else if (point.route_type === "wire" && prior?.route_type === "via") {
+          blockingSegments.push({
+            connectionIndex,
+            segment: {
+              start: prior,
+              end: point,
+              width: point.width,
+              layer: point.layer,
+            },
+          })
+        }
+        // The barrel still blocks every spanned layer when it also terminates
+        // a segment. Logical endpoints alone do not describe its copper land.
+        if (point.route_type === "via") {
+          const from = layers.indexOf(
+            point.from_layer as (typeof layers)[number],
+          )
+          const to = layers.indexOf(point.to_layer as (typeof layers)[number])
+          blockingVias.push({
+            connectionIndex,
+            center: point,
+            diameter: point.via_diameter ?? viaDiameter,
+            spanLayers:
+              point.layers ??
+              (from >= 0 && to >= 0
+                ? layers.slice(Math.min(from, to), Math.max(from, to) + 1)
+                : layers),
+          })
+        }
+      }
+    }
     for (const bus of buses) {
       this.phase = "assigning_sites"
       yield
