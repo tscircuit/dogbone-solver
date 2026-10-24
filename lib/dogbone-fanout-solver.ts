@@ -193,7 +193,8 @@ export class DogboneFanoutSolver extends BaseSolver {
           componentObstacles: pads,
           connections: [],
           direction: "down",
-          termination: { type: "boundary" },
+          // Direct local escapes must use straight or 45-degree candidates.
+          termination: { type: "plane", layer: targetLayer },
           componentBounds: {
             minX: xs[0]!,
             maxX: xs.at(-1)!,

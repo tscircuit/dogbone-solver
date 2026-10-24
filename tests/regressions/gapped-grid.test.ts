@@ -1,3 +1,4 @@
+import { validateRoutedCopperDrc } from "@tscircuit/fanout-solver"
 import { expect, test } from "bun:test"
 import { readFileSync, writeFileSync } from "node:fs"
 import { DogboneAutorouter } from "../../lib/index"
@@ -52,8 +53,38 @@ test("gapped-grid control completes a valid escape", () => {
   snapshot("gapped-grid-control", traces, false)
 })
 
-test("reproduces unsupported non-octilinear assignment beside fixed copper", () => {
-  expect(() => solveGapped()).toThrow(
-    "Dogbone fanout requires straight or 45-degree local escapes",
-  )
+test("fixed barrel leaves a valid octilinear escape on the gapped grid", () => {
+  const traces = solveGapped()
+  expect(traces).toHaveLength(1)
+  const trace = traces[0]!,
+    a = trace.route[0],
+    via = trace.route.find((p) => p.route_type === "via")!
+  const dx = Math.abs(via.x - a.x),
+    dy = Math.abs(via.y - a.y)
+  expect(dx < 1e-7 || dy < 1e-7 || Math.abs(dx - dy) < 1e-7).toBe(true)
+  expect(via.via_diameter).toBe(0.5)
+  expect(via.via_hole_diameter).toBe(0.3)
+  expect(via.layers).toEqual(["top", "inner1", "inner2", "bottom"])
+  const auditInput = {
+    ...gappedInput,
+    connections: [
+      ...gappedInput.connections,
+      {
+        name: "foreign",
+        pointsToConnect: [
+          { x: 0.4, y: -0.35, layer: "top" },
+          { x: 0.4, y: -0.45, layer: "bottom" },
+        ],
+      },
+    ],
+  }
+  const drc = validateRoutedCopperDrc({
+    inputSrj: auditInput,
+    routedSrj: { ...auditInput, traces: [...gappedInput.traces, ...traces] },
+    clearance: 0.1,
+    allowBlindAndBuriedVias: false,
+  })
+  expect(drc.valid).toBe(true)
+  expect(drc.checkedViaCount).toBe(2)
+  snapshot("gapped-grid-fixed-barrel", traces, true)
 })
