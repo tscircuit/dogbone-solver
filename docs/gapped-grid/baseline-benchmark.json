@@ -1,0 +1,258 @@
+{
+  "scope": "48 gapped-grid local dogbone cases; not the bus-lanes 11-case suite or whole board",
+  "sourceRevision": "local",
+  "repetitions": 10,
+  "cases": [
+    {
+      "id": "gap1.6-rot0-block1,1",
+      "success": false,
+      "meanSeconds": 0.0007067403000000072,
+      "error": "Error: Dogbone fanout requires straight or 45-degree local escapes"
+    },
+    {
+      "id": "gap1.6-rot0-block1,-1",
+      "success": true,
+      "meanSeconds": 0.00031364000000000375
+    },
+    {
+      "id": "gap1.6-rot0-block-1,1",
+      "success": true,
+      "meanSeconds": 0.00020236609999998902
+    },
+    {
+      "id": "gap1.6-rot0-block-1,-1",
+      "success": true,
+      "meanSeconds": 0.00019399550000002253
+    },
+    {
+      "id": "gap1.6-rot90-block1,1",
+      "success": true,
+      "meanSeconds": 0.00014774859999998853
+    },
+    {
+      "id": "gap1.6-rot90-block1,-1",
+      "success": true,
+      "meanSeconds": 0.0001138274999999794
+    },
+    {
+      "id": "gap1.6-rot90-block-1,1",
+      "success": false,
+      "meanSeconds": 0.00011485179999999105,
+      "error": "Error: Dogbone fanout requires straight or 45-degree local escapes"
+    },
+    {
+      "id": "gap1.6-rot90-block-1,-1",
+      "success": false,
+      "meanSeconds": 0.00013413729999998053,
+      "error": "Error: Dogbone fanout requires straight or 45-degree local escapes"
+    },
+    {
+      "id": "gap1.6-rot180-block1,1",
+      "success": true,
+      "meanSeconds": 0.00011333879999998544
+    },
+    {
+      "id": "gap1.6-rot180-block1,-1",
+      "success": false,
+      "meanSeconds": 0.00010556909999999676,
+      "error": "Error: Dogbone fanout requires straight or 45-degree local escapes"
+    },
+    {
+      "id": "gap1.6-rot180-block-1,1",
+      "success": true,
+      "meanSeconds": 0.00015850619999999366
+    },
+    {
+      "id": "gap1.6-rot180-block-1,-1",
+      "success": true,
+      "meanSeconds": 0.00012417629999999917
+    },
+    {
+      "id": "gap1.6-rot270-block1,1",
+      "success": true,
+      "meanSeconds": 0.00010966920000000755
+    },
+    {
+      "id": "gap1.6-rot270-block1,-1",
+      "success": true,
+      "meanSeconds": 0.00011351920000000177
+    },
+    {
+      "id": "gap1.6-rot270-block-1,1",
+      "success": true,
+      "meanSeconds": 0.00012288920000000304
+    },
+    {
+      "id": "gap1.6-rot270-block-1,-1",
+      "success": true,
+      "meanSeconds": 0.00011010200000000623
+    },
+    {
+      "id": "gap2.4-rot0-block1,1",
+      "success": false,
+      "meanSeconds": 0.00009899330000000645,
+      "error": "Error: Dogbone fanout requires straight or 45-degree local escapes"
+    },
+    {
+      "id": "gap2.4-rot0-block1,-1",
+      "success": true,
+      "meanSeconds": 0.00005822359999999663
+    },
+    {
+      "id": "gap2.4-rot0-block-1,1",
+      "success": true,
+      "meanSeconds": 0.000056281800000004974
+    },
+    {
+      "id": "gap2.4-rot0-block-1,-1",
+      "success": true,
+      "meanSeconds": 0.00007919030000001044
+    },
+    {
+      "id": "gap2.4-rot90-block1,1",
+      "success": true,
+      "meanSeconds": 0.00006183619999999905
+    },
+    {
+      "id": "gap2.4-rot90-block1,-1",
+      "success": true,
+      "meanSeconds": 0.00009436210000000073
+    },
+    {
+      "id": "gap2.4-rot90-block-1,1",
+      "success": true,
+      "meanSeconds": 0.00009616399999998749
+    },
+    {
+      "id": "gap2.4-rot90-block-1,-1",
+      "success": true,
+      "meanSeconds": 0.00009622209999999426
+    },
+    {
+      "id": "gap2.4-rot180-block1,1",
+      "success": true,
+      "meanSeconds": 0.0000972165999999902
+    },
+    {
+      "id": "gap2.4-rot180-block1,-1",
+      "success": false,
+      "meanSeconds": 0.00007995069999999488,
+      "error": "Error: Dogbone fanout requires straight or 45-degree local escapes"
+    },
+    {
+      "id": "gap2.4-rot180-block-1,1",
+      "success": true,
+      "meanSeconds": 0.00004851219999999899
+    },
+    {
+      "id": "gap2.4-rot180-block-1,-1",
+      "success": true,
+      "meanSeconds": 0.00005582229999999982
+    },
+    {
+      "id": "gap2.4-rot270-block1,1",
+      "success": true,
+      "meanSeconds": 0.0000817833000000064
+    },
+    {
+      "id": "gap2.4-rot270-block1,-1",
+      "success": true,
+      "meanSeconds": 0.00005296469999998976
+    },
+    {
+      "id": "gap2.4-rot270-block-1,1",
+      "success": true,
+      "meanSeconds": 0.0000436958000000061
+    },
+    {
+      "id": "gap2.4-rot270-block-1,-1",
+      "success": true,
+      "meanSeconds": 0.000043635899999992485
+    },
+    {
+      "id": "gap3.2-rot0-block1,1",
+      "success": false,
+      "meanSeconds": 0.0000419522000000029,
+      "error": "Error: Dogbone fanout requires straight or 45-degree local escapes"
+    },
+    {
+      "id": "gap3.2-rot0-block1,-1",
+      "success": true,
+      "meanSeconds": 0.000044797500000004214
+    },
+    {
+      "id": "gap3.2-rot0-block-1,1",
+      "success": true,
+      "meanSeconds": 0.00007380410000000097
+    },
+    {
+      "id": "gap3.2-rot0-block-1,-1",
+      "success": true,
+      "meanSeconds": 0.000050648100000006465
+    },
+    {
+      "id": "gap3.2-rot90-block1,1",
+      "success": true,
+      "meanSeconds": 0.00007620489999999905
+    },
+    {
+      "id": "gap3.2-rot90-block1,-1",
+      "success": true,
+      "meanSeconds": 0.00008467849999998977
+    },
+    {
+      "id": "gap3.2-rot90-block-1,1",
+      "success": true,
+      "meanSeconds": 0.00007914799999999787
+    },
+    {
+      "id": "gap3.2-rot90-block-1,-1",
+      "success": true,
+      "meanSeconds": 0.00008323240000000283
+    },
+    {
+      "id": "gap3.2-rot180-block1,1",
+      "success": true,
+      "meanSeconds": 0.00009066660000000296
+    },
+    {
+      "id": "gap3.2-rot180-block1,-1",
+      "success": false,
+      "meanSeconds": 0.00007226780000000303,
+      "error": "Error: Dogbone fanout requires straight or 45-degree local escapes"
+    },
+    {
+      "id": "gap3.2-rot180-block-1,1",
+      "success": true,
+      "meanSeconds": 0.00007625100000000771
+    },
+    {
+      "id": "gap3.2-rot180-block-1,-1",
+      "success": true,
+      "meanSeconds": 0.00007343349999999306
+    },
+    {
+      "id": "gap3.2-rot270-block1,1",
+      "success": true,
+      "meanSeconds": 0.0000707808
+    },
+    {
+      "id": "gap3.2-rot270-block1,-1",
+      "success": true,
+      "meanSeconds": 0.00006591750000000048
+    },
+    {
+      "id": "gap3.2-rot270-block-1,1",
+      "success": true,
+      "meanSeconds": 0.00009861539999999991
+    },
+    {
+      "id": "gap3.2-rot270-block-1,-1",
+      "success": true,
+      "meanSeconds": 0.00007088990000000308
+    }
+  ],
+  "passed": 40,
+  "total": 48,
+  "meanSecondsPerCase": 0.00010798375416666555
+}
