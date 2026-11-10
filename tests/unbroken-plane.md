@@ -6,7 +6,7 @@ It does not implement the proposal. No dependencies are added or upgraded.
 
 ```sh
 bun install
-bun test tests/unbroken-plane.test.ts tests/unbroken-plane-expected.test.ts
+bun test tests/unbroken-plane.test.ts
 ```
 
 ![Native solver output: ordinary vs reserved ground plane](./__snapshots__/unbroken-plane.snap.svg)
@@ -35,10 +35,10 @@ and the repository's existing graphics-debug/bun-match-svg tools. Its enlarged
 views omit the plane/resistor rectangles for readability; solver inputs stay
 unchanged. No output routes are drawn by the test.
 
-`unbroken-plane.test.ts` records current behavior. The separate `test.failing`
-expresses the desired result; Bun counts the known failure as a passing test.
-Passing CI therefore does not mean the routing bug is fixed. After a fix, remove
-`.failing` and update the current-behavior assertions and snapshot.
+The single test in `unbroken-plane.test.ts` records both current outcomes and
+the explanatory snapshot. Passing CI means the reproduction is stable, not that
+the routing bug is fixed. After a fix, update the failure assertions to require
+a successful escape and regenerate the snapshot.
 
 The relevant code is `lib/dogbone-fanout-solver.ts`, which passes all obstacles to
 `matchComponentDogboneViaSites`. The shared `viaSiteClearsObstacles` helper in

@@ -1,6 +1,17 @@
 import { expect, test } from "bun:test"
-import { solveUnbrokenPlane } from "./fixtures/solve-unbroken-plane"
+import { DogboneFanoutSolver, type DogboneFanoutSolverInput } from "lib"
+import ordinary from "./fixtures/unbroken-plane-ordinary.json"
+import reserved from "./fixtures/unbroken-plane-reserved.json"
 import { unbrokenPlaneSnapshot } from "./fixtures/unbroken-plane-snapshot"
+
+function solveUnbrokenPlane(unbroken: boolean) {
+  const input = structuredClone(
+    unbroken ? reserved : ordinary,
+  ) as DogboneFanoutSolverInput
+  const solver = new DogboneFanoutSolver(input)
+  solver.solve()
+  return solver
+}
 
 test("repro: reserving inner1 GND blocks the same SIGNAL escape", async () => {
   const control = solveUnbrokenPlane(false)
