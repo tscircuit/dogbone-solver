@@ -16,5 +16,6 @@
       "lib/*": ["./lib/*"],
       "tests/*": ["./tests/*"]
     }
-  }
+  },
+  "exclude": ["node_modules", "examples/**/*.circuit.tsx"]
 }

@@ -1,5 +1,3 @@
-import { Fragment } from "react"
-
 // Only `unbroken` changes between the reproduction and its control.
 // routeRemaining=false isolates the native dogbone escape phase.
 export default function UnbrokenPlane({ unbroken = true }) {
@@ -29,19 +27,69 @@ export default function UnbrokenPlane({ unbroken = true }) {
           footprint={
             <footprint>
               <courtyardrect width={2.4} height={2.4} />
-              {[-0.8, 0, 0.8].flatMap((x, column) =>
-                [-0.8, 0, 0.8].map((y, row) => (
-                  <Fragment key={`${x}-${y}`}>
-                    <smtpad
-                      portHints={[`pin${column * 3 + row + 1}`]}
-                      pcbX={x}
-                      pcbY={y}
-                      shape="circle"
-                      radius={0.2}
-                    />
-                  </Fragment>
-                )),
-              )}
+              <smtpad
+                portHints={["pin1"]}
+                pcbX={-0.8}
+                pcbY={-0.8}
+                shape="circle"
+                radius={0.2}
+              />
+              <smtpad
+                portHints={["pin2"]}
+                pcbX={-0.8}
+                pcbY={0}
+                shape="circle"
+                radius={0.2}
+              />
+              <smtpad
+                portHints={["pin3"]}
+                pcbX={-0.8}
+                pcbY={0.8}
+                shape="circle"
+                radius={0.2}
+              />
+              <smtpad
+                portHints={["pin4"]}
+                pcbX={0}
+                pcbY={-0.8}
+                shape="circle"
+                radius={0.2}
+              />
+              <smtpad
+                portHints={["pin5"]}
+                pcbX={0}
+                pcbY={0}
+                shape="circle"
+                radius={0.2}
+              />
+              <smtpad
+                portHints={["pin6"]}
+                pcbX={0}
+                pcbY={0.8}
+                shape="circle"
+                radius={0.2}
+              />
+              <smtpad
+                portHints={["pin7"]}
+                pcbX={0.8}
+                pcbY={-0.8}
+                shape="circle"
+                radius={0.2}
+              />
+              <smtpad
+                portHints={["pin8"]}
+                pcbX={0.8}
+                pcbY={0}
+                shape="circle"
+                radius={0.2}
+              />
+              <smtpad
+                portHints={["pin9"]}
+                pcbX={0.8}
+                pcbY={0.8}
+                shape="circle"
+                radius={0.2}
+              />
             </footprint>
           }
         />

@@ -1,58 +1,74 @@
 # Reproduction: reserved ground plane blocks a dogbone escape
 
 Related design proposal: [#4](https://github.com/tscircuit/dogbone-solver/pull/4).
-This adds executable TSX and a visual reproduction against this repository's
-solver source; it does not implement the proposal.
+This PR adds a plain TSX example, captured native inputs, and a solver snapshot.
+It does not implement the proposal. No dependencies are added or upgraded.
 
 ```sh
 bun install
-bun test tests/unbroken-plane.test.tsx tests/unbroken-plane-expected.test.tsx
+bun test tests/unbroken-plane.test.ts tests/unbroken-plane-expected.test.ts
 ```
 
-![Native PCB output: ordinary vs reserved ground plane](./__snapshots__/unbroken-plane.snap.svg)
+![Native solver output: ordinary vs reserved ground plane](./__snapshots__/unbroken-plane.snap.svg)
 
-The standalone circuit is [unbroken-plane.circuit.tsx](./fixtures/unbroken-plane.circuit.tsx).
-It contains a 3 x 3 pad grid at 0.8 mm pitch, one SIGNAL connection, and an inner1
-GND pour. Native `dogbone` targets inner2. `routeRemaining={false}` requests only
-the chip's local escape, so the resistor intentionally stays unrouted.
+The standalone [TSX example](../examples/unbroken-plane.circuit.tsx) explicitly
+lists all nine pads of a 0.8 mm pitch grid. One center-pad SIGNAL connection
+escapes from top to inner2 across an inner1 GND pour. Both cases contain that
+pour; only its `unbroken` prop changes. `routeRemaining={false}` isolates local
+escape, so the resistor intentionally stays unrouted.
 
 | Only changed TSX prop | Published core output | Repository dogbone solver |
 | --- | --- | --- |
 | `unbroken={false}` | 1 escape trace, 1 via | Solved |
 | `unbroken={true}` | 0 escape traces, 0 vias | Failed |
 
-The failure is `No complete local dogbone assignment within clearance/search limits`.
-Expected: both cases can escape; the SIGNAL via crosses inner1 GND with an
-antipad, keeping the two nets isolated. The props contract explicitly permits
-vias through unbroken pours using antipads.
+The error is `No complete local dogbone assignment within clearance/search limits`.
+Expected: the SIGNAL via crosses inner1 GND with a copper-free ring (antipad),
+keeping the nets isolated. The props API explicitly permits such crossings.
 
-The test captures `solver:started` from stock core and passes its untouched
-constructor input to `DogboneFanoutSolver` imported from this checkout. It checks
-that the only input difference is the added `isCopperPour` obstacle on inner1.
-The source-pad ID is present in both cases. The snapshot combines native PCB
-SVGs from the original Circuit JSON, with enlarged top-copper views and captions.
-No manually drawn routes, saved routing, replacement router callbacks, or solver
-patches are used.
+The JSON fixtures are unmodified `solver:started` constructor inputs captured
+from the TSX example with stock core 0.0.2323 and props 0.0.724. They contain no
+saved routes (`traces: []`). The test runs this repository's native solver and
+checks that the only input difference is the reserved inner1 pour obstacle.
+The source-pad ID is present in both inputs. The snapshot uses `solver.visualize()`
+and the repository's existing graphics-debug/bun-match-svg tools. Its enlarged
+views omit the plane/resistor rectangles for readability; solver inputs stay
+unchanged. No output routes are drawn by the test.
 
-`unbroken-plane.test.tsx` records the current failure. The separate
-`test.failing` in `unbroken-plane-expected.test.tsx` expresses the desired solver
-result. Bun reports that expected failure as a passing test; this is not evidence
-of a routing fix. Remove `.failing` and update the reproduction assertions and
-snapshot after fixing the solver.
+`unbroken-plane.test.ts` records current behavior. The separate `test.failing`
+expresses the desired result; Bun counts the known failure as a passing test.
+Passing CI therefore does not mean the routing bug is fixed. After a fix, remove
+`.failing` and update the current-behavior assertions and snapshot.
 
-The relevant path is `lib/dogbone-fanout-solver.ts`, which passes all obstacles to
+The relevant code is `lib/dogbone-fanout-solver.ts`, which passes all obstacles to
 `matchComponentDogboneViaSites`. The shared `viaSiteClearsObstacles` helper in
-`@tscircuit/fanout-solver` rejects the pour geometrically. A fix must preserve
-real obstacle clearance and verify emitted antipads/foreign-net isolation in
-core integration. These tests only reproduce the local escape failure.
+`@tscircuit/fanout-solver` rejects the pour geometrically. A fix must retain real
+obstacle clearance and verify emitted antipads/foreign-net isolation in core.
 
-Core is pinned to 0.0.2323, props to 0.0.724, and the repository's fanout dependency
-remains 0.0.79. The circuit-json schema is aligned to 0.0.548 because the current
-core bundle requires exports absent in 0.0.507. The additional development
-dependencies supply core's footprint/rendering imports and the PCB SVG renderer.
+## Re-render the TSX and recapture inputs
 
-To regenerate the explanatory snapshot intentionally:
+The solver repo has no tscircuit renderer dependency. Copy the two files from
+`examples/` into an existing tscircuit project, then run with Bun:
 
 ```sh
-BUN_UPDATE_SNAPSHOTS=1 bun test tests/unbroken-plane.test.tsx
+bun examples/capture-unbroken-plane.mjs
+```
+
+This renders both ordinary TSX cases, prints native trace/via/error counts, and
+writes `unbroken-plane-ordinary.json` and `unbroken-plane-reserved.json` in that
+project's working directory. Copy these inputs into `tests/fixtures/` here.
+The capture only observes events; it never replaces the router or edits input.
+
+The example's TSX tags are provided by core, so standalone circuit examples are
+excluded from this solver-only tsconfig. The example was separately typechecked
+and rendered in the existing tscircuit project. Its SHA-256 at capture time is:
+`016a83e05b924a9dbe1979567a1066cc4caf9488911f6442bfc9aeca8a9c04ce`.
+
+This small case isolates the defect. It does not establish that fixing it will
+route an entire motherboard; that requires a separate board-level rerun.
+
+To intentionally regenerate the solver snapshot:
+
+```sh
+BUN_UPDATE_SNAPSHOTS=1 bun test tests/unbroken-plane.test.ts
 ```
