@@ -32,10 +32,15 @@
     "@tscircuit/fanout-solver": "0.0.79",
     "@tscircuit/solver-utils": "0.0.16",
     "@tscircuit/capacity-autorouter": "0.0.941",
-    "circuit-json": "0.0.507",
+    "circuit-json": "0.0.548",
     "graphics-debug": "0.0.95"
   },
   "devDependencies": {
+    "@tscircuit/core": "0.0.2323",
+    "@tscircuit/footprinter": "0.0.450",
+    "@tscircuit/props": "0.0.724",
+    "circuit-json-to-gltf": "0.0.164",
+    "circuit-to-svg": "0.0.457",
     "@biomejs/biome": "2.5.5",
     "@types/bun": "^1.3.14",
     "@types/react": "^19.2.14",
