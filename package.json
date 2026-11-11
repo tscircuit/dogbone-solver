@@ -29,7 +29,7 @@
     "build:site": "cosmos-export"
   },
   "dependencies": {
-    "@tscircuit/fanout-solver": "0.0.79",
+    "@tscircuit/fanout-solver": "0.0.82",
     "@tscircuit/solver-utils": "0.0.16",
     "@tscircuit/capacity-autorouter": "0.0.941",
     "circuit-json": "0.0.507",

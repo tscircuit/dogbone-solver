@@ -13,7 +13,7 @@ function solveUnbrokenPlane(unbroken: boolean) {
   return solver
 }
 
-test("repro: reserving inner1 GND blocks the same SIGNAL escape", async () => {
+test("reserved inner1 GND preserves the same SIGNAL escape", async () => {
   const control = solveUnbrokenPlane(false)
   const repro = solveUnbrokenPlane(true)
 
@@ -40,11 +40,17 @@ test("repro: reserving inner1 GND blocks the same SIGNAL escape", async () => {
   expect(
     control.getOutput()[0]!.route.filter((p) => p.route_type === "via"),
   ).toHaveLength(1)
-  expect(repro.failed).toBe(true)
-  expect(repro.error).toBe(
-    "No complete local dogbone assignment within clearance/search limits",
-  )
-  expect(() => repro.getOutput()).toThrow(repro.error!)
+  expect(repro.solved).toBe(true)
+  expect(repro.failed).toBe(false)
+  expect(repro.error).toBeNull()
+  expect(repro.getOutput()).toEqual(control.getOutput())
+  expect(
+    repro.getOutput()[0]!.route.find((p) => p.route_type === "via"),
+  ).toMatchObject({
+    from_layer: "top",
+    to_layer: "inner2",
+    layers: ["top", "inner1", "inner2", "bottom"],
+  })
   await expect(unbrokenPlaneSnapshot(control, repro)).toMatchSvgSnapshot(
     import.meta.path,
   )
