@@ -1,6 +1,6 @@
 {
   "name": "@tscircuit/dogbone-solver",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "type": "module",
   "module": "lib/index.ts",
   "types": "lib/index.ts",
