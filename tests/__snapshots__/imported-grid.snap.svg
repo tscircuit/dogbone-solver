@@ -1,8 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="905" viewBox="0 0 1200 905">
     <rect width="1200" height="905" fill="white"/>
     <g font-family="sans-serif" fill="#182230">
-      <text x="30" y="39" font-size="26" font-weight="bold">Imported STM32MP157DAB1: native dogbone angle rejection</text>
-      <text x="30" y="74" font-size="18">All 354 JLCPCB C1236721 pads retained, including their original coordinate precision.</text>
+      <text x="30" y="39" font-size="26" font-weight="bold">Imported STM32MP157DAB1: W13 local escape</text>
+      <text x="30" y="74" font-size="18">JLCPCB C1236721: all 354 pads retained; routing requested only for W13.</text>
       <text x="30" y="108" font-size="20" font-weight="bold" fill="#067647">ACCEPTED: 1 escape, 1 via</text>
       <text x="30" y="145" font-size="18">Complete imported pad field</text>
       <text x="620" y="145" font-size="18">W13 enlarged: selected pad-to-via candidate</text>
