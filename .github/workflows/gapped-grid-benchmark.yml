@@ -1,0 +1,46 @@
+name: Gapped-grid paired benchmark
+on:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  benchmark:
+    runs-on: blacksmith-4vcpu-ubuntu-2404
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.base.sha || github.sha }}
+          path: base
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          path: head
+          persist-credentials: false
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.4.0
+      - name: Install pinned revisions
+        run: |
+          (cd base && bun install --ignore-scripts)
+          (cd head && bun install --ignore-scripts)
+          mkdir -p benchmark-results
+      - name: Benchmark pinned base with identical head fixtures
+        env:
+          BENCHMARK_SOURCE_SHA: ${{ github.event.pull_request.base.sha || github.sha }}
+        run: bun head/scripts/benchmark-gapped-grid.ts base/lib/index.ts benchmark-results/base.json
+      - name: Benchmark pinned head
+        env:
+          BENCHMARK_SOURCE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+          REQUIRE_ALL_GAPPED_CASES: "0"
+        run: bun head/scripts/benchmark-gapped-grid.ts head/lib/index.ts benchmark-results/head.json
+      - name: Report effect
+        run: |
+          bun -e 'import {readFileSync,appendFileSync} from "node:fs";const b=JSON.parse(readFileSync("benchmark-results/base.json","utf8")),h=JSON.parse(readFileSync("benchmark-results/head.json","utf8"));const regressions=h.cases.filter(x=>!x.success&&b.cases.find(y=>y.id===x.id)?.success);appendFileSync(process.env.GITHUB_STEP_SUMMARY,`Base: ${b.passed}/${b.total}; head: ${h.passed}/${h.total}; regressed: ${regressions.length}.\nMean solver seconds/case: ${b.meanSecondsPerCase} → ${h.meanSecondsPerCase}.\nThis is local fanout coverage, not legacy 11/11 or whole-board completion.\n`);if(regressions.length)process.exitCode=1'
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: gapped-grid-paired-benchmark
+          path: benchmark-results
