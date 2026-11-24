@@ -6,8 +6,157 @@ import {
 } from "@tscircuit/fanout-solver"
 import { layer_ref, type PcbPort, type SourceTrace } from "circuit-json"
 import type { GraphicsObject } from "graphics-debug"
-import type { SimpleRouteJson, SimplifiedPcbTrace } from "./types"
+import type { Obstacle, SimpleRouteJson, SimplifiedPcbTrace } from "./types"
 import { getViaBoardLayers } from "./get-via-board-layers"
+
+const ROTATION_TOLERANCE_RAD = (0.5 * Math.PI) / 180
+const MAX_SNAP_DISPLACEMENT_MM = 0.002
+const COORDINATE_CLUSTER_PITCH_RATIO = 0.05
+const FALLBACK_COORDINATE_CLUSTER_MM = 0.005
+
+function findMinPadDistance(pads: Obstacle[]): number {
+  let minDist = Number.POSITIVE_INFINITY
+  for (let i = 0; i < pads.length; i++) {
+    for (let j = i + 1; j < pads.length; j++) {
+      const d = Math.hypot(
+        pads[j]!.center.x - pads[i]!.center.x,
+        pads[j]!.center.y - pads[i]!.center.y,
+      )
+      if (d > 1e-6 && d < minDist) minDist = d
+    }
+  }
+  return minDist
+}
+
+function clusterCoordinates(values: number[], tolerance: number): number[] {
+  const sorted = [
+    ...new Set(values.map((v) => Math.round(v * 1e6) / 1e6)),
+  ].sort((a, b) => a - b)
+  if (sorted.length <= 1 || tolerance <= 0) return sorted
+  const result: number[] = []
+  let clusterStart = sorted[0]!
+  let clusterSum = clusterStart
+  let clusterCount = 1
+  for (let i = 1; i < sorted.length; i++) {
+    const v = sorted[i]!
+    if (v - clusterStart <= tolerance) {
+      clusterSum += v
+      clusterCount++
+    } else {
+      result.push(
+        clusterCount === 1
+          ? clusterStart
+          : Math.round((clusterSum / clusterCount) * 1e6) / 1e6,
+      )
+      clusterStart = v
+      clusterSum = v
+      clusterCount = 1
+    }
+  }
+  result.push(
+    clusterCount === 1
+      ? clusterStart
+      : Math.round((clusterSum / clusterCount) * 1e6) / 1e6,
+  )
+  return result
+}
+
+function rotatePoint(
+  point: { x: number; y: number },
+  origin: { x: number; y: number },
+  radians: number,
+): { x: number; y: number } {
+  const cos = Math.cos(radians)
+  const sin = Math.sin(radians)
+  const dx = point.x - origin.x
+  const dy = point.y - origin.y
+  return {
+    x: origin.x + dx * cos - dy * sin,
+    y: origin.y + dx * sin + dy * cos,
+  }
+}
+
+function rotateObstacle(
+  obstacle: Obstacle,
+  origin: { x: number; y: number },
+  radians: number,
+): Obstacle {
+  const deltaDeg = (radians * 180) / Math.PI
+  return {
+    ...obstacle,
+    center: rotatePoint(obstacle.center, origin, radians),
+    ...(obstacle.ccwRotationDegrees !== undefined || obstacle.shape !== "circle"
+      ? { ccwRotationDegrees: (obstacle.ccwRotationDegrees ?? 0) + deltaDeg }
+      : {}),
+  }
+}
+
+function rotateBounds(
+  bounds: SimpleRouteJson["bounds"],
+  origin: { x: number; y: number },
+  radians: number,
+): SimpleRouteJson["bounds"] {
+  const corners = [
+    { x: bounds.minX, y: bounds.minY },
+    { x: bounds.minX, y: bounds.maxY },
+    { x: bounds.maxX, y: bounds.minY },
+    { x: bounds.maxX, y: bounds.maxY },
+  ].map((corner) => rotatePoint(corner, origin, radians))
+  return {
+    minX: Math.min(...corners.map((c) => c.x)),
+    maxX: Math.max(...corners.map((c) => c.x)),
+    minY: Math.min(...corners.map((c) => c.y)),
+    maxY: Math.max(...corners.map((c) => c.y)),
+  }
+}
+
+function inferGridRotationRadians(
+  pads: Obstacle[],
+  minDist: number,
+  origin: { x: number; y: number },
+): number {
+  if (pads.length < 2 || !Number.isFinite(minDist)) return 0
+
+  // Collect nearest-neighbor edge angles folded into [0, pi/2) using circular mean on 4*theta.
+  let sumCos = 0
+  let sumSin = 0
+  let count = 0
+  for (let i = 0; i < pads.length; i++) {
+    for (let j = i + 1; j < pads.length; j++) {
+      const dx = pads[j]!.center.x - pads[i]!.center.x
+      const dy = pads[j]!.center.y - pads[i]!.center.y
+      const d = Math.hypot(dx, dy)
+      if (d < minDist * 0.98 || d > minDist * 1.02) continue
+      const angle = Math.atan2(dy, dx)
+      sumCos += Math.cos(4 * angle)
+      sumSin += Math.sin(4 * angle)
+      count++
+    }
+  }
+  if (count === 0) return 0
+
+  const mean4 = Math.atan2(sumSin, sumCos)
+  const theta = (((mean4 / 4) % (Math.PI / 2)) + Math.PI / 2) % (Math.PI / 2)
+  const distToAxis = Math.min(theta, Math.PI / 2 - theta)
+  const distToDiag = Math.abs(theta - Math.PI / 4)
+  const residualRad = Math.min(distToAxis, distToDiag)
+  let maxRadius = 0
+  for (const pad of pads) {
+    const r = Math.hypot(pad.center.x - origin.x, pad.center.y - origin.y)
+    if (r > maxRadius) maxRadius = r
+  }
+  const residualDisplacement = maxRadius * Math.sin(residualRad)
+  if (
+    residualRad <= ROTATION_TOLERANCE_RAD &&
+    residualDisplacement <= MAX_SNAP_DISPLACEMENT_MM
+  ) {
+    return distToAxis <= distToDiag ? 0 : Math.PI / 4
+  }
+  const deg = (theta * 180) / Math.PI
+  throw new Error(
+    `Dogbone fanout requires pad grid rotation to be a multiple of 45 degrees (detected ${deg.toFixed(1)}°)`,
+  )
+}
 
 /** Serializable board-world points in mm: +X right, +Y up, +Z above,
  * right-handed. Pad placement/rotation/reflection has already been applied. */
@@ -149,7 +298,13 @@ export class DogboneFanoutSolver extends BaseSolver {
       )
     )
       throw new Error("Dogbone fanout targets an unavailable board layer")
-    const buses: PreparedBus[] = []
+    const busContexts: Array<{
+      bus: PreparedBus
+      origin: { x: number; y: number }
+      rotationRad: number
+      rotatedObstacles: Obstacle[]
+      rotatedObstacleMap: Map<Obstacle, Obstacle>
+    }> = []
     const targets = sources.map(({ port, sourceTraceId }, connectionIndex) => {
       const sourceObstacle = input.obstacles.find(
         (obstacle) =>
@@ -170,24 +325,58 @@ export class DogboneFanoutSolver extends BaseSolver {
         throw new Error(
           "Dogbone fanout requires a legal layer distinct from the source pad",
         )
-      let bus = buses.find(
-        (bus) => bus.componentId === sourceObstacle.componentId,
+      let busCtx = busContexts.find(
+        (ctx) => ctx.bus.componentId === sourceObstacle.componentId,
       )
-      if (!bus) {
-        const pads = input.obstacles.filter(
+      if (!busCtx) {
+        const rawPads = input.obstacles.filter(
           (obstacle) => obstacle.componentId === sourceObstacle.componentId,
         )
-        const xs = [
-          ...new Set(pads.map((pad) => Math.round(pad.center.x * 1e6) / 1e6)),
-        ].sort((a, b) => a - b)
-        const ys = [
-          ...new Set(pads.map((pad) => Math.round(pad.center.y * 1e6) / 1e6)),
-        ].sort((a, b) => a - b)
+        const origin = {
+          x:
+            (Math.min(...rawPads.map((p) => p.center.x)) +
+              Math.max(...rawPads.map((p) => p.center.x))) /
+            2,
+          y:
+            (Math.min(...rawPads.map((p) => p.center.y)) +
+              Math.max(...rawPads.map((p) => p.center.y))) /
+            2,
+        }
+        const minPadDist = findMinPadDistance(rawPads)
+        const rotationRad = inferGridRotationRadians(
+          rawPads,
+          minPadDist,
+          origin,
+        )
+        const rotatedObstacleMap = new Map<Obstacle, Obstacle>()
+        const rotatedObstacles =
+          rotationRad === 0
+            ? input.obstacles
+            : input.obstacles.map((o) => {
+                const rot = rotateObstacle(o, origin, -rotationRad)
+                rotatedObstacleMap.set(o, rot)
+                return rot
+              })
+        const pads =
+          rotationRad === 0
+            ? rawPads
+            : rawPads.map((pad) => rotatedObstacleMap.get(pad)!)
+        const clusterTolerance = Number.isFinite(minPadDist)
+          ? minPadDist * COORDINATE_CLUSTER_PITCH_RATIO
+          : FALLBACK_COORDINATE_CLUSTER_MM
+        const xs = clusterCoordinates(
+          pads.map((pad) => pad.center.x),
+          clusterTolerance,
+        )
+        const ys = clusterCoordinates(
+          pads.map((pad) => pad.center.y),
+          clusterTolerance,
+        )
         if (xs.length < 2 || ys.length < 2)
           throw new Error("Dogbone fanout requires a two-dimensional pad grid")
         const pitch = (coordinates: number[]) =>
           Math.min(...coordinates.slice(1).map((v, i) => v - coordinates[i]!))
-        bus = {
+        const bus: PreparedBus = {
           busId: sourceObstacle.componentId!,
           componentId: sourceObstacle.componentId!,
           componentObstacles: pads,
@@ -201,27 +390,45 @@ export class DogboneFanoutSolver extends BaseSolver {
             minY: ys[0]!,
             maxY: ys.at(-1)!,
           },
-          sharedBoundary: input.bounds,
+          sharedBoundary:
+            rotationRad === 0
+              ? input.bounds
+              : rotateBounds(input.bounds, origin, -rotationRad),
           xCoordinates: xs,
           yCoordinates: ys,
           pitchX: pitch(xs),
           pitchY: pitch(ys),
         }
-        buses.push(bus)
+        busCtx = {
+          bus,
+          origin,
+          rotationRad,
+          rotatedObstacles,
+          rotatedObstacleMap,
+        }
+        busContexts.push(busCtx)
       }
+      const localPortPos =
+        busCtx.rotationRad === 0
+          ? { x: port.x, y: port.y }
+          : rotatePoint(port, busCtx.origin, -busCtx.rotationRad)
+      const localSourceObstacle =
+        busCtx.rotationRad === 0
+          ? sourceObstacle
+          : busCtx.rotatedObstacleMap.get(sourceObstacle)!
       const sourcePoint = {
-        x: port.x,
-        y: port.y,
+        x: localPortPos.x,
+        y: localPortPos.y,
         layer: sourceLayer,
         pcb_port_id: port.pcb_port_id,
       }
-      bus.connections.push({
+      busCtx.bus.connections.push({
         connectionIndex,
         connection: { name: port.pcb_port_id, pointsToConnect: [sourcePoint] },
         sourcePoint,
         sourcePointIndex: 0,
         sourceLayer,
-        sourceObstacle,
+        sourceObstacle: localSourceObstacle,
         targetPoint: sourcePoint,
       })
       return { sourceTraceId, port, sourceLayer, targetLayer }
@@ -302,18 +509,37 @@ export class DogboneFanoutSolver extends BaseSolver {
         }
       }
     }
-    for (const bus of buses) {
+    for (const { bus, origin, rotationRad, rotatedObstacles } of busContexts) {
       this.phase = "assigning_sites"
       yield
+      const solverObstacles = rotatedObstacles
+      const solverBlockingSegments =
+        rotationRad === 0
+          ? blockingSegments
+          : blockingSegments.map((item) => ({
+              ...item,
+              segment: {
+                ...item.segment,
+                start: rotatePoint(item.segment.start, origin, -rotationRad),
+                end: rotatePoint(item.segment.end, origin, -rotationRad),
+              },
+            }))
+      const solverBlockingVias =
+        rotationRad === 0
+          ? blockingVias
+          : blockingVias.map((item) => ({
+              ...item,
+              center: rotatePoint(item.center, origin, -rotationRad),
+            }))
       const assignment = matchComponentDogboneViaSites([bus], {
         traceWidth,
         clearance: Math.max(clearance, viaClearance),
         viaDiameter,
         viaHoleDiameter: holeDiameter,
         holeToHoleClearance: holeClearance,
-        additionalObstacles: input.obstacles,
-        blockingSegments,
-        blockingVias,
+        additionalObstacles: solverObstacles,
+        blockingSegments: solverBlockingSegments,
+        blockingVias: solverBlockingVias,
       })
       if (!assignment || assignment.size !== bus.connections.length)
         throw new Error(
@@ -321,12 +547,17 @@ export class DogboneFanoutSolver extends BaseSolver {
         )
       for (const connection of bus.connections) {
         const connectionIndex = connection.connectionIndex
-        const via = assignment.get(connectionIndex)!
+        const localVia = assignment.get(connectionIndex)!
+        const via =
+          rotationRad === 0
+            ? localVia
+            : rotatePoint(localVia, origin, rotationRad)
+        const worldStart = targets[connectionIndex]!.port
         sites.set(connectionIndex, via)
         blockingSegments.push({
           connectionIndex,
           segment: {
-            start: connection.sourcePoint,
+            start: worldStart,
             end: via,
             width: traceWidth,
             layer: connection.sourceLayer,
