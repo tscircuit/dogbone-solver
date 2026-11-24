@@ -87,6 +87,7 @@ export class DogboneFanoutSolver extends BaseSolver {
           center,
           radius:
             (this.params.input.minViaPadDiameter ??
+              this.params.input.min_via_pad_diameter ??
               this.params.input.minViaDiameter ??
               0.6) / 2,
           fill: "orange",
@@ -104,8 +105,13 @@ export class DogboneFanoutSolver extends BaseSolver {
     const { input, fanoutRoutingLayers } = this.params
     const traceWidth = input.minTraceWidth
     const clearance = input.minTraceToPadEdgeClearance ?? 0.1
-    const viaDiameter = input.minViaPadDiameter ?? input.minViaDiameter ?? 0.6
-    const holeDiameter = input.minViaHoleDiameter ?? 0.3
+    const viaDiameter =
+      input.minViaPadDiameter ??
+      input.min_via_pad_diameter ??
+      input.minViaDiameter ??
+      0.6
+    const holeDiameter =
+      input.minViaHoleDiameter ?? input.min_via_hole_diameter ?? 0.3
     const viaClearance = input.minViaEdgeToPadEdgeClearance ?? clearance
     const boardEdgeClearance = input.minBoardEdgeClearance ?? clearance
     const holeClearance =
