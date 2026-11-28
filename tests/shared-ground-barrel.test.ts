@@ -1,3 +1,4 @@
+import { validateRoutedCopperDrc } from "@tscircuit/fanout-solver"
 import type { Obstacle } from "../lib/types"
 import { expect, test } from "bun:test"
 import { DogboneFanoutSolver, type DogboneFanoutSolverInput } from "lib"
@@ -67,8 +68,39 @@ test("diagonal ground escapes can share one interstitial barrel", async (): Prom
   const before = structuredClone(params)
   const solver = new DogboneFanoutSolver(params)
   solver.solve()
-  expect(solver.failed).toBeTrue()
-  expect(solver.error).toContain("No complete local dogbone assignment")
+  expect(solver.failed).toBeFalse()
+  expect(solver.solved).toBeTrue()
+  const traces = solver.getOutput()
+  expect(traces).toHaveLength(2)
+  const vias = traces.map(
+    (trace) => trace.route.find((point) => point.route_type === "via")!,
+  )
+  expect(vias[0]!.x).toBeCloseTo(0.975, 9)
+  expect(vias[0]!.y).toBeCloseTo(0.975, 9)
+  expect(vias[1]).toEqual(vias[0])
+  const drc = validateRoutedCopperDrc({
+    inputSrj: { ...params.input, traces: [] },
+    routedSrj: {
+      ...params.input,
+      traces: traces.map((trace, index) => ({
+        ...trace,
+        connection_name: params.input.connections[index]!.name,
+      })),
+    },
+    clearance: 0.1,
+    allowBlindAndBuriedVias: false,
+  })
+  expect(drc.issues).toEqual([])
+  expect(drc.valid).toBeTrue()
+  const separateNets = structuredClone(params)
+  separateNets.input.connections[1]!.netConnectionName = "POWER"
+  separateNets.input.obstacles[10]!.connectedTo = ["port-10", "POWER"]
+  const foreign = new DogboneFanoutSolver(separateNets)
+  foreign.solve()
+  expect(foreign.failed).toBeTrue()
+  expect(() => foreign.getOutput()).toThrow(
+    "No complete local dogbone assignment",
+  )
   expect(params).toEqual(before)
   await expect(
     snapshot(solver, "Diagonal ground pads / one interstitial barrel"),
