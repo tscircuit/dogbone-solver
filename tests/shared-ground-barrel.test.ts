@@ -1,9 +1,6 @@
+import type { Obstacle } from "../lib/types"
 import { expect, test } from "bun:test"
-import {
-  DogboneFanoutSolver,
-  type DogboneFanoutSolverInput,
-  type Obstacle,
-} from "lib"
+import { DogboneFanoutSolver, type DogboneFanoutSolverInput } from "lib"
 import { snapshot } from "./fixtures/snapshot"
 
 test("diagonal ground escapes can share one interstitial barrel", async (): Promise<void> => {
