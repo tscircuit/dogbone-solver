@@ -226,6 +226,9 @@ export class DogboneFanoutSolver extends BaseSolver {
       })
       return { sourceTraceId, port, sourceLayer, targetLayer }
     })
+    const copperNetByConnectionIndex = input.connections.map(
+      (connection) => connection.netConnectionName ?? connection.name,
+    )
     const sites = this.sites
     const blockingSegments: NonNullable<
       DogboneViaSiteGeometryRules["blockingSegments"]
@@ -311,6 +314,10 @@ export class DogboneFanoutSolver extends BaseSolver {
         viaDiameter,
         viaHoleDiameter: holeDiameter,
         holeToHoleClearance: holeClearance,
+        canShareCopper: (first, second): boolean => {
+          const net = copperNetByConnectionIndex[first]
+          return net !== undefined && net === copperNetByConnectionIndex[second]
+        },
         additionalObstacles: input.obstacles,
         blockingSegments,
         blockingVias,
