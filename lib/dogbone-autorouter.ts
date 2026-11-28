@@ -40,8 +40,11 @@ export class DogboneAutorouter implements GenericLocalAutorouter {
   constructor(
     public params: DogboneFanoutSolverInput,
     private callbacks: DogboneSolverCallbacks = {},
+    createSolver: (params: DogboneFanoutSolverInput) => DogboneFanoutSolver = (
+      params,
+    ) => new DogboneFanoutSolver(params),
   ) {
-    this.solver = new DogboneFanoutSolver(params)
+    this.solver = createSolver(params)
   }
   private finishSolver() {
     this.callbacks.onSolverEnded?.({
